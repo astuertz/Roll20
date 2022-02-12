@@ -659,6 +659,8 @@ on("ready",function(){
                     let nameMacro = name;
                     nameMacro = name.replace(' ','');
                     createnewMacro(nameMacro,actionMacro);
+                    addError = nameMacro;
+                    errorMsg = notFound(addError);                         
                 }
             } else {
                 addError = '<br>No abilities found<br>Abilities format:<br>Name (Ex|Sp|Su)<br>(description)<br>(line break required)';
@@ -666,7 +668,7 @@ on("ready",function(){
             }            
             
             
-            chatAnnounce('&{template:DnD35StdRoll} {{basicflag=true}} {{name=importMonsterAPI }}{{notes=**Ability Macros Created!**<br><br>-------<br>The following attributes were not found or had errors. Please update manually:<br>-------<br>**' + errorMsg + '**}}');            
+            chatAnnounce('&{template:DnD35StdRoll} {{basicflag=true}} {{name=importMonsterAPI }}{{notes=**Ability Macros Created!**<br><br>-------<br>The following ability macros were created:<br>-------<br>**' + errorMsg + '**}}');            
         
         
         
@@ -709,7 +711,7 @@ on("ready",function(){
                 
                 if (skillMatch){
                     
-                    addError = skillMatch + 'found';
+                    addError = skillMatch;
                     errorMsg = notFound(addError);                    
                     let skillMod = skillMatch.split('+')[1];
                     skillMod = skillMod.replace('(','[');
