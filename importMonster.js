@@ -40,8 +40,9 @@
 
 on("ready",function(){
     on("chat:message",function(msg){
-        if(msg.type=="api" && msg.content.indexOf("!importMonster")==0){
-            
+        if((msg.type=="api" && msg.content.indexOf("!importMonster")==0) || (msg.type=="api" && msg.content.indexOf("!createabilityMacros")==0) || (msg.type=="api" && msg.content.indexOf("!createskillMacros")==0) || (msg.type=="api" && msg.content.indexOf("!createattackMacros")==0) || (msg.type=="api" && msg.content.indexOf("!deleteMacros")==0))
+        { //if any of the commands in this script are used, define commonly used functions and variables
+        
 			//Simple function to create an announcement in chat log.
 			function chatAnnounce(announce) {
                   sendChat('importMonster',announce);
@@ -100,6 +101,24 @@ on("ready",function(){
                 return;
             }
             var other = other.replace('–','-');
+            
+            
+            function createnewMacro(name,action) {
+                createObj("ability", {
+                    name: name,
+                    characterid: importMonster.id,
+                    action: action,
+                    istokenaction: true
+                });        
+            
+            }            
+        
+        
+        }
+        
+        
+        if(msg.type=="api" && msg.content.indexOf("!importMonster")==0){
+            
             //Renames labels in field "other" for simplified monster statblocks
             //Checks that text contains the words "Short Block"
             //Add "Size/Type:" before creature size/type manually
@@ -388,7 +407,7 @@ on("ready",function(){
             
             
             
-            match = other.match(/Speed:\s*([\d]+)(.*)/ig);
+            match = other.match(/Speed:\s*(.*)/ig);
             if(match){
                 var regex = match[0];
                 regex = regex.replace(/Speed:\s*/,'');
@@ -468,9 +487,10 @@ on("ready",function(){
 
 
             
-            match = other.match(/Attack:\s*(.+)/ig);
+            match = other.match(/\nAttack:\s*(.+)\n/ig); //uses \n to indicate the start of a line ^ and $ do not work
             if(match){
                 var regex = match[0];
+                regex = regex.replace(/\n/,'');
                 regex = regex.replace(/Attack:\s*/,'');
                 attributeName = 'npcattack';
     			foundAttribute = findAttribute(attributeName);
@@ -593,20 +613,65 @@ on("ready",function(){
                 errorMsg = notFound(addError);                  
             }
             
-            chatAnnounce('&{template:DnD35StdRoll} {{basicflag=true}} {{name=importMonsterAPI }}{{notes=**Importing Monster Complete!**<br><br>-------<br>The following attributes were not found or had errors. Please update manually:<br>-------<br>**' + errorMsg + '**}}');
-            //chatAnnounce('<br>Importing Monster Complete!');
-            //chatAnnounce('The following attributes were not found or had errors. Please update manually:');
-            //chatAnnounce('' + errorMsg);
             
+            match = other.split('\n'); //separate by line
+            nameError = match[0].match(/Size\/Type:/ig); //checks to see if first line is Size/Type field
+            if (!nameError){
+                nameError = match[0].match(/Hit Dice:/ig); //checks to see if first line is Hit Dice (in case Size/Type is missing)
+                if (!nameError) { //If first line is not Size/Type or Hit Dice, assumes that first line is npcname
+                var regex = match[0];
+                regex = regex.replace(/Hit Dice:/,'');
+                attributeName = 'npcname';
+    			foundAttribute = findAttribute(attributeName);
+                foundAttribute.set("current",regex);
+                } else {
+                addError = 'Name not found';
+                errorMsg = notFound(addError);                     
+                }
+            } else {
+                addError = 'Name not found';
+                errorMsg = notFound(addError);                  
+            }
+            
+
+            chatAnnounce('&{template:DnD35StdRoll} {{basicflag=true}} {{name=importMonsterAPI }}{{notes=**Importing Monster Complete!**<br><br>-------<br>The following attributes were not found or had errors. Please update manually:<br>-------<br>**' + errorMsg + '**}}');
+
+
         }
+        if(msg.type=="api" && msg.content.indexOf("!createabilityMacros")==0){
+            
+            //creates macros for each ability with Ex, Sp, or Su in parantheses
+            //each ability description must be on a new line
+            match = other.match(/([a-zA-Z0-9 ]+)\((Ex|Sp|Su)\)\n(.*)/ig); //checks for a line with text followed by (ex,sp,su) then text
+            if (match){
+                for (i=0; i < match.length; i++) {
+                    var regex = match[i];
+                    regex = regex.split(/\n/);
+                    name = regex[0];
+                    name = name.replace(' ','');
+                    description = match[i];
+                    let actionMacro = "&{template:DnD35StdRoll} {{basicflag=true}} {{name=@{character_name} }} {{notes=" + description + "}}";
+                    let nameMacro = name;
+                    nameMacro = name.replace(' ','');
+                    createnewMacro(nameMacro,actionMacro);
+                }
+            } else {
+                addError = '<br>No abilities found<br>Abilities format:<br>Name (Ex|Sp|Su)<br>(description)<br>(line break required)';
+                errorMsg = notFound(addError);                  
+            }            
+            
+            
+            chatAnnounce('&{template:DnD35StdRoll} {{basicflag=true}} {{name=importMonsterAPI }}{{notes=**Importing Monster Complete!**<br><br>-------<br>The following attributes were not found or had errors. Please update manually:<br>-------<br>**' + errorMsg + '**}}');            
+        
+        
+        
+        } 
+        
+        
         
         if(msg.type=="api" && msg.content.indexOf("!createskillMacros")==0){        
         
 
-            //Find character "importMonster"
-            var importMonster = findObjs({ type: "character", name: "importMonster" });
-            importMonster = importMonster[0];        
-        
             //create new Array containing the name of each Skill
             const skillName = new Array("Appraise","Balance","Bluff","Climb","Concentrate","Diplomacy","Disguise","Escape Artist","Forgery","Gather Information","Heal","Jump","Hide","Intimidate","Listen","Move Silently","Ride","Search","Sense Motive","Spot","Survival","Swim","Use Rope","Knwl(general)","Craft(general)","Perform(general)");
             const abilityMod = new Array("npcint-mod","npcdex-mod","npccha-mod","npcstr-mod","npccon-mod","npccha-mod","npccha-mod","npcdex-mod","npcint-mod","npccha-mod","npcwis-mod","npcstr-mod","npcdex-mod","npccha-mod","npcwis-mod","npcdex-mod","npcdex-mod","npcint-mod","npcwis-mod","npcwis-mod","npcwis-mod","npcstr-mod","npcdex-mod","npcint-mod","npcint-mod","npccha-mod");
@@ -674,11 +739,7 @@ on("ready",function(){
                 }
                 
                 
-                //sendChat('immportMonster','asdf ' + regexSkill);
-                    
-                //let skillMatchTwo = other.match(/Hide\s\+[\d]*/ig);
-                //sendChat('importMonster',skillMatchTwo[0]);
-                    
+
             }        
             
             
@@ -788,26 +849,7 @@ on("ready",function(){
                 }                  
                 
                 
-                
-                
-                //sendChat('immportMonster','asdf ' + regexSkill);
-                    
-                //let skillMatchTwo = other.match(/Hide\s\+[\d]*/ig);
-                //sendChat('importMonster',skillMatchTwo[0]);
-                    
-            
 
-
-
-
-
-
-
-
-
-      
-                
-        
         } 
         
         
@@ -1006,11 +1048,7 @@ on("ready",function(){
 //If !deleteMacros, find each macro and delete it for character importMonster
         if(msg.type=="api" && msg.content.indexOf("!deleteMacros")==0){
 
-            var importMonster = findObjs({ type: "character", name: "importMonster" });
-            importMonster = importMonster[0];
 
-
-            
             var existingMacros = findObjs({
                 type:"ability",
                 characterid:importMonster.id
@@ -1028,46 +1066,7 @@ on("ready",function(){
 
         }        
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        function createnewMacro(name,action) {
-            createObj("ability", {
-                name: name,
-                characterid: importMonster.id,
-                action: action,
-                istokenaction: true
-            });        
-        
-        }
-        
-        
-      
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
         
         
     });
