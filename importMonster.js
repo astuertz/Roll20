@@ -666,7 +666,7 @@ on("ready",function(){
             }            
             
             
-            chatAnnounce('&{template:DnD35StdRoll} {{basicflag=true}} {{name=importMonsterAPI }}{{notes=**Importing Monster Complete!**<br><br>-------<br>The following attributes were not found or had errors. Please update manually:<br>-------<br>**' + errorMsg + '**}}');            
+            chatAnnounce('&{template:DnD35StdRoll} {{basicflag=true}} {{name=importMonsterAPI }}{{notes=**Ability Macros Created!**<br><br>-------<br>The following attributes were not found or had errors. Please update manually:<br>-------<br>**' + errorMsg + '**}}');            
         
         
         
@@ -682,21 +682,11 @@ on("ready",function(){
             const abilityMod = new Array("npcint-mod","npcdex-mod","npccha-mod","npcstr-mod","npccon-mod","npccha-mod","npccha-mod","npcdex-mod","npcint-mod","npccha-mod","npcwis-mod","npcstr-mod","npcdex-mod","npccha-mod","npcwis-mod","npcdex-mod","npcdex-mod","npcint-mod","npcwis-mod","npcwis-mod","npcwis-mod","npcstr-mod","npcdex-mod","npcint-mod","npcint-mod","npccha-mod");
             const skillComplex = new Array("Craft","Knowledge","Perform","Profession");        
             //var other = getAttrByName(importMonster.id, "other");            
-            
-            
-            
+
             //grab "npcskills" attribute and set as skillText
             var skillsText = getAttrByName(importMonster.id, "npcskills");
-            //skillsText = other;
-            
-            
-            //sendChat('importMonster',skillName.length);
-            //var regexSkill = new String("");
             var skillMatch = new String("");
-            //sendChat('importMonster','' + skillName.length);
 
-            
-            
             //create for statement to .match all skills.
             for (i = 0; i < skillName.length; i++) {
 
@@ -717,15 +707,14 @@ on("ready",function(){
                     }
                 }
                 
-                //sendChat results
                 if (skillMatch){
                     
-                    sendChat('importMonster','' + skillMatch);
+                    addError = skillMatch + 'found';
+                    errorMsg = notFound(addError);                    
                     let skillMod = skillMatch.split('+')[1];
                     skillMod = skillMod.replace('(','[');
                     skillMod = skillMod.replace(')',']');
-                    sendChat('importMonster','' + skillMod);
-                    
+
                     let actionMacro = "&{template:DnD35StdRoll} {{basicflag=true}} {{name=@{character_name} }} {{" + skillnameText + ": [[1d20+" + skillMod + "]]}}";
                     if (skillText){
                         actionMacro = actionMacro + "{{notes=" + skillText + "}}";
@@ -775,11 +764,11 @@ on("ready",function(){
                 //sendChat results
                 if (skillMatch){
                     
-                    sendChat('importMonster','' + skillMatch);
+                    addError = skillMatch;
+                    errorMsg = notFound(addError); 
                     let skillMod = skillMatch.split('+')[1];
                     skillMod = skillMod.replace('(','[');
                     skillMod = skillMod.replace(')',']');                    
-                    sendChat('importMonster','' + skillMod);
                     let actionMacro = "&{template:DnD35StdRoll} {{basicflag=true}} {{name=@{character_name} }} {{" + skillnameText + ": [[1d20+" + skillMod + "]]}}";
                     if (skillText){
                         actionMacro = actionMacro + "{{notes=" + skillText + "}}";
@@ -795,6 +784,8 @@ on("ready",function(){
                 if (skillMatch){
                     for (i=0; i < skillMatch.length; i++){
                         let skillMatchComp = skillMatch[i];
+                        addError = skillMatchComp;
+                        errorMsg = notFound(addError);                          
                         let skillnameText = skillMatchComp.split('+')[0];
                         let skillMod = skillMatchComp.split('+')[1];
                         skillMod = skillMod.replace('(','[');
@@ -802,6 +793,7 @@ on("ready",function(){
                         let nameMacro = "z" + skillnameText.replace(' ','');
                         let actionMacro = "&{template:DnD35StdRoll} {{basicflag=true}} {{name=@{character_name} }} {{" + skillnameText + ": [[1d20+" + skillMod + "]]}}";
                         createnewMacro(nameMacro,actionMacro);
+                       
                         
                     }
                 }
@@ -810,6 +802,8 @@ on("ready",function(){
                 if (skillMatch){
                     for (i=0; i < skillMatch.length; i++){
                         let skillMatchComp = skillMatch[i];
+                        addError = skillMatchComp;
+                        errorMsg = notFound(addError);                        
                         let skillnameText = skillMatchComp.split('+')[0];
                         let skillMod = skillMatchComp.split('+')[1];
                         skillMod = skillMod.replace('(','[');
@@ -826,6 +820,8 @@ on("ready",function(){
                 if (skillMatch){
                     for (i=0; i < skillMatch.length; i++){
                         let skillMatchComp = skillMatch[i];
+                        addError = skillMatchComp;
+                        errorMsg = notFound(addError);                        
                         let skillnameText = skillMatchComp.split('+')[0];
                         let skillMod = skillMatchComp.split('+')[1];
                         skillMod = skillMod.replace('(','[');
@@ -842,6 +838,8 @@ on("ready",function(){
                 if (skillMatch){
                     for (i=0; i < skillMatch.length; i++){
                         let skillMatchComp = skillMatch[i];
+                        addError = skillMatchComp;
+                        errorMsg = notFound(addError);                        
                         let skillnameText = skillMatchComp.split('+')[0];
                         let skillMod = skillMatchComp.split('+')[1];
                         skillMod = skillMod.replace('(','[');
@@ -853,6 +851,7 @@ on("ready",function(){
                     }
                 }                  
                 
+            chatAnnounce('&{template:DnD35StdRoll} {{basicflag=true}} {{name=importMonsterAPI }}{{notes=**Skill Macros Created!**<br><br>-------<br>The following skills macros have been created:<br>-------<br>**' + errorMsg + '**}}');            
                 
 
         } 
@@ -929,6 +928,8 @@ on("ready",function(){
                 let action = "&{template:DnD35Attack} {{basicflag=true}} {{name=@{npcname} }} {{subtags=attacks with a [" + name + "] }} {{attack1=" + name + ": [[1d20cs>" + critRange + " + " + attackMod + " + ?{Attack Mod?|0} [Atk Mod] ]] }} {{critconfirm1=Crit?: [[1d20cs>" + critRange + " + " + attackMod + " + ?{Attack Mod?|0} [Atk Mod] ]] }} {{damage1=for [[" + attackDmg + " + ?{Damage Mod?|0} [Dmg Mod] ]] dmg}} {{critdmg1=+ [[(" + critMult + "-1)*(" + attackDmg + " + ?{Damage Mod?|0} [Dmg Mod]) ]] crit dmg}}";
                 action = action + "{{notes=" + notes + "}}";
                 createnewMacro(name,action);
+                addError = name;
+                errorMsg = notFound(addError);                
             
             }
             
@@ -1038,9 +1039,12 @@ on("ready",function(){
                 }
                 action = action + "{{notes=" + notesFA + "}}";
                 createnewMacro("full"+i,action);
+                addError = "full"+i;
+                errorMsg = notFound(addError);                 
             //end of fullattack for statement    
             } 
 
+            chatAnnounce('&{template:DnD35StdRoll} {{basicflag=true}} {{name=importMonsterAPI }}{{notes=**Attack Macros Created!**<br><br>-------<br>The following attack macros have been created:<br>-------<br>**' + errorMsg + '**}}');            
             
 
             
@@ -1067,6 +1071,7 @@ on("ready",function(){
                 })
             }
             
+            chatAnnounce('&{template:DnD35StdRoll} {{basicflag=true}} {{name=importMonsterAPI }}{{notes=**All Macros Deleted for character named importMonster!**}}');            
             
 
         }        
