@@ -1,42 +1,47 @@
 //Import Monster stats into 3.5 Character Sheet (Diana P).
-//Create a new character sheet, select the 'NPC' option.
-//Fill out all of the empty spaces with a "1" or some other character.
-//This is to populate the Attributes that we will need.
+//Create a new character named "importMonster"
 
-//Currently, the script checks for existing attributes for ability scores only
-//making sure to populate those attributes if they do not already exist
-//before attempting to update their values. However, this error checking
-//is a work-in-progress. So it is still advised to make sure
-//that you populate all fields before running the script.
-
-//Copy SRD info and put into "other" field of PC character sheet.
+//Copy SRD info and put into "other" field of PC character sheet
 //It is recommended that you copy your text as "plain text"
-//Type !importMonster into the chat to extract data from field.
-//You should see the sheet populate quite quickly.
+
+//Make sure that any related information is on the same line
+//For example, make sure that the list of skills does not contain a line break
+//until after the list has ended
+
+//Use !importMonster to import monster information
 //Make adjustments to the text as needed.
-//Potentially, automatic macro creation in the future.
+
+//Use !createabilityMacros to generate a macro containing each ability description
+//Format is Name (Ex|Sp|Su) <line break> Description
+//Any damage or otherwise is not included in this macro and must be made manually.
+
+//For all commands that create macros, these commands add to the macro list and
+//Never remove any existing macros. Therefore, the command !deleteMacros has been
+//included. This command !!!DELETES ALL MACROS!!! for character importMonster.
+//If you only want to delete some macros, you need to delete them manually.
+//No other Macros or character sheets are affected by this command.
+
 //Written by Anthony Stuertzel, based on the code by Chris S.
-//For now, the Character Sheet has to be named "importMonster" (case sensitive).
-//Also, here's the website for the Wolf SRD I used to test everything:
+//Here's the website for the Wolf SRD I used to test everything:
 //https://www.d20srd.org/srd/monsters/wolf.htm
+
 //If you're copying from a shorter block from a book, use the shortblockMonster
 //script instead. It is specifically designed around these truncated stat blocks.
-
-//Additionally, a new feature keeps a running tab of error codes
-//So that at the end of the script, it will populate the chat with all
-//found errors. This will let you know in one convenient block of text
-//whether anything was unsuccesfful.
-
-
+//At present, the shortblockMonster script has not had the same updates as importMonster
+//Make sure that every field on the npc side of the character sheet has a '1'
+//to populate the attributes. This additional step is not necessary for the normal
+//importMonster script.
+//This will be updated in the future.
 
 //Command !deleteMacros deletes all macros for creature "importMonster"
 //Command !createskillMacros adds macros for each skill, parsing the information from the Skills line of NPC character sheet for character "importMonster"
+
 //Command !createattackMacros adds Single Attacks and Full Attacks from the npcattack and npcfullattack field
 //Note: this is designed around normal attacks that have an attack roll and damage.
 //It parses "and" and "or" to figure out how to make the macros.
-//If an attack does not have a +/- modifier to attack roll, or doesn't have a #d#+#.
-//Therefore, if an attack is just 1d6, you need to add a +0 to it for proper formatting.
-
+//Proper format for attacks <name> <+ or -><number> (<num>d<num>+<num>)
+//The damage is in the parantheses; however, the script will also accept
+//#d# or plain text for damage.
 
 on("ready",function(){
     on("chat:message",function(msg){
