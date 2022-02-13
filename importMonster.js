@@ -880,9 +880,21 @@ on("ready",function(){
             //Greataxe +18 melee (3d6+13/x3) or slam +18 melee (1d4+9) or rock +9 ranged (2d6+9)
             for (i = 0; i < attackText.length; i++){
                 var text = attackText[i];
-                name = text.match(/(.*)\s[+-]/)[0];
+                name = text.match(/(.*)\s[+-]/);
+                if (name){
+                    name = name[0];
+                } else {
+                    sendChat('GM',"could not find attack name.<br>This error can occur if 'and' or 'or' are used anywhere but in the separation of different attacks. If these words appear in the damage description or elsewhere, place an astrerick around it, change it, or alter it in some way. Otherwise, see the comments section for insight on the proper structure of attacks for this code.");
+                    return;
+                }                
                 name = name.replace(/\s[+-]/,'');
-                attackMod = text.match(/(.*)\s[+-][\d]+/)[0];
+                attackMod = text.match(/(.*)\s[+-][\d]+/);
+                if (attackMod) {
+                    attackMod = attackMod[0];
+                } else {
+                    sendChat('GM','Could not find attack mod for attack named' + name + ' for Standard Attack. Please check that attack is in correct format<br><br>Format:<br>Name +Modifier (Damage)');
+                    return;
+                }                
                 attackMod = attackMod.replace(/(.*)\s[+-]/,'');
                 attackDmg = text.match(/[\d]+d[\d]+[+-][\d]+/);
                 if (attackDmg){
@@ -960,7 +972,13 @@ on("ready",function(){
                     //defines what attack number we are in for macro
                     let textFA = text[j];
                     sendChat('gm','' + textFA);
-                    var name = textFA.match(/(.*)\s[+-]/)[0];
+                    var name = textFA.match(/(.*)\s[+-]/);
+                    if (name){
+                        name = name[0];
+                    } else {
+                        sendChat('GM',"could not find attack name.<br>This error can occur if 'and' or 'or' are used anywhere but in the separation of different attacks. If these words appear in the damage description or elsewhere, place an astrerick around it, change it, or alter it in some way. Otherwise, see the comments section for insight on the proper structure of attacks for this code.");
+                        return;
+                    }                       
                     name = name.replace(/\s[+-]/,'');
                     let multiattackFlag = 0;
                     var attackMod = textFA.match(/(.*)\s(?<atkmod>[+-][\d]+\/*[+-[\d]+]*\/*[+-[\d]+]*\/*[+-[\d]+]*)/);
@@ -970,7 +988,13 @@ on("ready",function(){
                     attackMod = attackMod.split('/');
                     multiattackFlag = 1;
                     } else {
-                        attackMod = textFA.match(/\s[+-][\d]+/)[0];
+                        attackMod = textFA.match(/\s[+-][\d]+/);
+                        if (attackMod) {
+                            attackMod = attackMod[0];
+                        } else {
+                            sendChat('GM','Could not find attack mod for attack named ' + name + ' for Full Attack. Please check that attack is in correct format<br><br>Format:<br>Name +Modifier (Damage)');
+                            return;
+                        }
                         attackMod = attackMod.replace(/ [+-]/,'');
                     }
                     var attackDmg = textFA.match(/[\d]+d[\d]+[+-][\d]+/);
