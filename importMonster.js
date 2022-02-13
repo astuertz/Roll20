@@ -238,7 +238,7 @@ on("ready",function(){
             }
 
             
-            match = other.match(/(?:Size\/Type:)?\s*(fine|diminutive|tiny|small|medium|large|huge|gargantuan|colossal) ([a-zA-Z0-9 ]+)/ig);
+            match = other.match(/(?:Size\/Type:)?\s*(fine|diminutive|tiny|small|medium|large|huge|gargantuan|colossal) ([a-zA-Z0-9 \(\)]+)/ig);
             //If Size/Type is found, update attribute, else error message.
             if(match){
                 var regex = match[0];
@@ -1163,7 +1163,7 @@ on("ready",function(){
             }            
             
             
-            match = other.match(/(?:Size\/Type:)?\s*(fine|diminutive|tiny|small|medium|large|huge|gargantuan|colossal) ([a-zA-Z0-9 ]+)/ig);
+            match = other.match(/(?:Size\/Type:)?\s*(fine|diminutive|tiny|small|medium|large|huge|gargantuan|colossal) ([a-zA-Z0-9 \(\)]+)/ig);
             //If Size/Type is found, update attribute, else error message.
             if(match){
                 var regex = match[0];
@@ -1306,6 +1306,7 @@ on("ready",function(){
                 grapple = regex[1];
                 attributeName = 'npcgrapple';
     			foundAttribute = findAttribute(attributeName);
+    			foundAttribute.set("current",grapple);
             } else {
                 addError = 'Grapple not found';
                 errorMsg = notFound(addError);                  
@@ -1417,25 +1418,37 @@ on("ready",function(){
 
             match = other.match(/Melee\s*(.+)/ig);
             regex = "";
+            melee = "";
+            ranged = "";
             if(match){
-                for (i=0; i < match.length; i++){
-                var regex = regex + " or " + match[i];
-                }
+                Melee = match[0].replace('Melee','');
             } else {
                 addError = 'Melee Attack not found';
                 errorMsg = notFound(addError);                  
             }                 
             match = other.match(/Ranged\s*(.+)/ig);
             if(match){
-                for (i=0; i < match.length; i++){
-                var regex = regex + "\n" + match[i];
-                }
+                Ranged = match[0].replace('Ranged','');
             } else {
                 addError = 'Ranged Attack not found';
                 errorMsg = notFound(addError);                  
             }                
             attributeName = 'npcattack';
     		foundAttribute = findAttribute(attributeName);
+    		if (melee){
+    		    if (ranged){
+    		    regex = melee + ' or ' + ranged;
+    		    } else {
+    		        regex = melee;
+    		    }
+    		} else {
+    		    if (ranged){
+    		        regex = ranged;
+    		    } else {
+                    addError = 'No Attacks found';
+                    errorMsg = notFound(addError);    
+    		    }
+    		}
             foundAttribute.set("current", regex);
             //Full Attack should be the same as Single Attack because Full Attack is all that is listed
             attributeName = 'npcfullattack';
