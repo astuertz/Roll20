@@ -1300,10 +1300,10 @@ on("ready",function(){
                 errorMsg = notFound(addError);                  
             }
             
-            match = other.match(/Speed:\s*(.*)/ig);
+            match = other.match(/Speed\s*(.*)/ig);
             if(match){
                 var regex = match[0];
-                regex = regex.replace(/Speed:\s*/,'');
+                regex = regex.replace(/Speed\s*/,'');
                 attributeName = 'npcspeed';
     			foundAttribute = findAttribute(attributeName);
                 foundAttribute.set("current", regex);                
@@ -1313,10 +1313,10 @@ on("ready",function(){
             }
             
             
-            match = other.match(/Skills:\s*(.+)/ig);
+            match = other.match(/Skills\s*(.+)/ig);
             if(match){
                 var regex = match[0];
-                regex = regex.replace(/Skills:\s*/,'');
+                regex = regex.replace(/Skills\s*/,'');
                 attributeName = 'npcskills';
     			foundAttribute = findAttribute(attributeName);
                 foundAttribute.set("current", regex);                
@@ -1325,10 +1325,10 @@ on("ready",function(){
                 errorMsg = notFound(addError);                  
             }
             
-            match = other.match(/Feats:\s*(.+)/ig);
+            match = other.match(/Feats\s*(.+)/ig);
             if(match){
                 var regex = match[0];
-                regex = regex.replace(/Feats:\s*/,'');
+                regex = regex.replace(/Feats\s*/,'');
                 attributeName = 'npcfeats';
     			foundAttribute = findAttribute(attributeName);
                 foundAttribute.set("current", regex);                
@@ -1337,10 +1337,10 @@ on("ready",function(){
                 errorMsg = notFound(addError);                  
             }
             
-            match = other.match(/Challenge Rating:\s*([\d]+)/ig);
+            match = other.match(/CR\s*([\d]+)/g);
             if(match){
                 var regex = match[0];
-                regex = regex.replace(/Challenge Rating:\s*/,'');
+                regex = regex.replace(/CR\s*/,'');
                 attributeName = 'npccr';
     			foundAttribute = findAttribute(attributeName);
                 foundAttribute.set("current", regex);                
@@ -1395,7 +1395,11 @@ on("ready",function(){
             regex = "";
             if(match){
                 for (i=0; i < match.length; i++){
-                var regex = regex + " or " + match[i];
+                    if (i>0){
+                        regex = regex + " or " + match[i];
+                    } else {
+                        regex = regex + match[i];    
+                    }
                 }
             } else {
                 addError = 'Melee Attack not found';
@@ -1404,7 +1408,7 @@ on("ready",function(){
             match = other.match(/Ranged\s*(.+)/ig);
             if(match){
                 for (i=0; i < match.length; i++){
-                var regex = regex + "\n" + match[i];
+                    regex = regex + " or " + match[i]; //No creature I know of has a Ranged but not a Melee attack.
                 }
             } else {
                 addError = 'Ranged Attack not found';
@@ -1525,7 +1529,22 @@ on("ready",function(){
             
             }            
             
-
+            match = other.match(/Space\s*[\d]+ ft./ig);
+            if (match){
+                var regex = match[0];
+                regex = regex.replace(/Space\s*/,'');
+                attributeName = 'npcspace';
+    		    foundAttribute = findAttribute(attributeName);  
+                foundAttribute.set("current",space);                
+            }
+            match = other.match(/Reach\s*[\d]+ ft./ig);
+            if (match){
+                var regex = match[0];
+                regex = regex.replace(/Reach\s*/,'');
+                attributeName = 'npcreach';
+    		    foundAttribute = findAttribute(attributeName);  
+                foundAttribute.set("current",reach);                
+            }
             
             
             
