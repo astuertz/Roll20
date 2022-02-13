@@ -39,10 +39,6 @@
 //The damage is in the parantheses; however, the script will also accept
 //#d# or plain text for damage.
 
-//Finally, I am not sure why the code appears oddly on github. It is only an asthetic
-//preference, but it is annoying that things don't quite line up in github like they
-//do in Roll20.
-
 on("ready",function(){
     on("chat:message",function(msg){
         if((msg.type=="api" && msg.content.indexOf("!importMonster")==0) || (msg.type=="api" && msg.content.indexOf("!createabilityMacros")==0) || (msg.type=="api" && msg.content.indexOf("!createskillMacros")==0) || (msg.type=="api" && msg.content.indexOf("!createattackMacros")==0) || (msg.type=="api" && msg.content.indexOf("!deleteMacros")==0 || (msg.type=="api" && msg.content.indexOf("!shortblockMonster")==0)))
@@ -884,13 +880,7 @@ on("ready",function(){
             //Greataxe +18 melee (3d6+13/x3) or slam +18 melee (1d4+9) or rock +9 ranged (2d6+9)
             for (i = 0; i < attackText.length; i++){
                 var text = attackText[i];
-                name = text.match(/(.*)\s[+-]/);
-                if (name){
-                    name = name[0];
-                } else {
-                    sendChat('GM',"could not find attack name.<br>This error can occur if 'and' or 'or' are used anywhere but in the separation of different attacks. If these words appear in the damage description or elsewhere, place an astrerick around it, change it, or alter it in some way. Otherwise, see the comments section for insight on the proper structure of attacks for this code.");
-                    return;
-                }
+                name = text.match(/(.*)\s[+-]/)[0];
                 name = name.replace(/\s[+-]/,'');
                 attackMod = text.match(/(.*)\s[+-][\d]+/)[0];
                 attackMod = attackMod.replace(/(.*)\s[+-]/,'');
@@ -1310,10 +1300,10 @@ on("ready",function(){
                 errorMsg = notFound(addError);                  
             }
             
-            match = other.match(/Speed\s*(.*)/ig);
+            match = other.match(/Speed:\s*(.*)/ig);
             if(match){
                 var regex = match[0];
-                regex = regex.replace(/Speed\s*/,'');
+                regex = regex.replace(/Speed:\s*/,'');
                 attributeName = 'npcspeed';
     			foundAttribute = findAttribute(attributeName);
                 foundAttribute.set("current", regex);                
@@ -1323,10 +1313,10 @@ on("ready",function(){
             }
             
             
-            match = other.match(/Skills\s*(.+)/ig);
+            match = other.match(/Skills:\s*(.+)/ig);
             if(match){
                 var regex = match[0];
-                regex = regex.replace(/Skills\s*/,'');
+                regex = regex.replace(/Skills:\s*/,'');
                 attributeName = 'npcskills';
     			foundAttribute = findAttribute(attributeName);
                 foundAttribute.set("current", regex);                
@@ -1335,10 +1325,10 @@ on("ready",function(){
                 errorMsg = notFound(addError);                  
             }
             
-            match = other.match(/Feats\s*(.+)/ig);
+            match = other.match(/Feats:\s*(.+)/ig);
             if(match){
                 var regex = match[0];
-                regex = regex.replace(/Feats\s*/,'');
+                regex = regex.replace(/Feats:\s*/,'');
                 attributeName = 'npcfeats';
     			foundAttribute = findAttribute(attributeName);
                 foundAttribute.set("current", regex);                
@@ -1347,10 +1337,10 @@ on("ready",function(){
                 errorMsg = notFound(addError);                  
             }
             
-            match = other.match(/CR\s*([\d]+)/g);
+            match = other.match(/Challenge Rating:\s*([\d]+)/ig);
             if(match){
                 var regex = match[0];
-                regex = regex.replace(/CR\s*/,'');
+                regex = regex.replace(/Challenge Rating:\s*/,'');
                 attributeName = 'npccr';
     			foundAttribute = findAttribute(attributeName);
                 foundAttribute.set("current", regex);                
@@ -1400,38 +1390,30 @@ on("ready",function(){
                 errorMsg = notFound(addError);                  
             }              
 
-            var meleeAtt = "";
-            var rangedAtt = "";
+
             match = other.match(/Melee\s*(.+)/ig);
             regex = "";
             if(match){
-                match = match[0];
-                match = match.replace('Melee ','');
-                meleeAtt = match;
-                regex = match.replace('and','or');
+                for (i=0; i < match.length; i++){
+                var regex = regex + " or " + match[i];
+                }
             } else {
                 addError = 'Melee Attack not found';
                 errorMsg = notFound(addError);                  
             }                 
             match = other.match(/Ranged\s*(.+)/ig);
             if(match){
-                match = match[0];
-                match = match.replace('Ranged ','');
-                rangedAtt = match;
-                regex = regex + " or " + match.replace('and','or');
+                for (i=0; i < match.length; i++){
+                var regex = regex + "\n" + match[i];
+                }
             } else {
                 addError = 'Ranged Attack not found';
                 errorMsg = notFound(addError);                  
-            }
-
+            }                
             attributeName = 'npcattack';
     		foundAttribute = findAttribute(attributeName);
-            foundAttribute.set("current", regex.replace('and','or'));
-            if (meleeAtt && rangedAtt){
-                regex = meleeAtt + " or " + rangedAtt;
-            } else {
-                regex = meleeAtt + rangedAtt;
-            }
+            foundAttribute.set("current", regex);
+            //Full Attack should be the same as Single Attack because Full Attack is all that is listed
             attributeName = 'npcfullattack';
     		foundAttribute = findAttribute(attributeName);
             foundAttribute.set("current", regex);
@@ -1452,11 +1434,11 @@ on("ready",function(){
             
             match = other.match(/Hook\s*(.+)/ig);
             if(match){
-                var regex = match[0];
+                var regex = regex + "\n" + match[0];
                 attributeName = 'npcdescr';
     		    foundAttribute = findAttribute(attributeName);
                 var descr = getAttrByName(importMonster.id, "npcdescr");
-                regex = descr + "\n" + regex;
+                regex = descr + "\nHook:" + regex;
                 foundAttribute.set("current",regex);
                 
             }
@@ -1473,7 +1455,7 @@ on("ready",function(){
                 
             }            
 
-            match = other.match(/Senses\s*(.+)/g);
+            match = other.match(/Senses\s*(.+)/ig);
             if(match){
                 var regex = match[0];
                 attributeName = 'npcspecialqualities';
@@ -1543,22 +1525,7 @@ on("ready",function(){
             
             }            
             
-            match = other.match(/Space\s*[\d]+ ft./ig);
-            if (match){
-                var regex = match[0];
-                regex = regex.replace(/Space\s*/,'');
-                attributeName = 'npcspace';
-    		    foundAttribute = findAttribute(attributeName);  
-                foundAttribute.set("current",regex);                
-            }
-            match = other.match(/Reach\s*[\d]+ ft./ig);
-            if (match){
-                var regex = match[0];
-                regex = regex.replace(/Reach\s*/,'');
-                attributeName = 'npcreach';
-    		    foundAttribute = findAttribute(attributeName);  
-                foundAttribute.set("current",regex);                
-            }
+
             
             
             
@@ -1567,6 +1534,16 @@ on("ready",function(){
             
         } //End of !shortblockMonster
         
+        
+        if(msg.type=="api" && msg.content.indexOf("!IM")==0){
+
+
+
+            
+            sendChat('importMonster','&{template:DnD35StdRoll} {{basicflag=true}} {{name=importMonsterAPI }}{{notes=**importMonster Commands!**<br><br>**!importMonster**<br>Paste the stat block of your monster in "other" on PC section of character sheet before running command. Automatically parses information and updates it on the sheet. Formatted for SRD website monster stat blocks.<br><br>**!shortblockMonster**<br>The same as !importMonster except formatted for short stat blocks found in modules (based on the Red Hand of Doom module).<br><br>**!createattackMacros**<br>Takes the information in Attack and Full Attack on NPC section of character sheet, parses the information and makes each separate Single Attack as well as 1 each of every Full Attack option. Uses "and" and "or" to separate attacks; so if these words appear anywhere else in the attack information, you will be notified of an error. Can parse #d#+#, #d# or plain text for attacks (default #d#+#).<br><br>**!createabilityMacros**<br>Simple script to find abilities listed with (EX), (SP), or (SU). Creates a separate macro for each that places the text in the notes section of the macro. It is recommended that you customize your macro afterwards for better results.<br><br>**!createskillMacros**<br>Uses the skills field of the NPC character sheet to check for bonuses to skills. All listed skills have a macro generated. "Trained Only" skills only have macros generated if they are listed. Knowledge (general), Craft (general), and Perform (general) are also automatically generated. For each skill listed, it uses the listed modifier for that skill. Otherwise, it uses the ability score modifiers to create the skill. It also captures text in parantheses.<br><br>**!deleteMacros**<br>Deletes macros for importMonster. This is useful for if you import a monster and then notice afterwards that some of the text is separated by a line break. It is important to note that all related data should all be on a single line, which the exception of abilities which should have one line for the name and a separate line for the description. However, often times (especially when in a hurry), it is easy to just copy and paste the stat block without realizing there is an arbitrary line break in the text. In such a case, it is often easier to wipe out all of the macros and rerun the commands one at a time. Note, this will delete all of the macros for importMonster. So if you have added your own that you want to keep, it may be easier to delete the macros manually.}}');            
+            
+            
+        }             
         
 
         
