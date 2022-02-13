@@ -880,7 +880,13 @@ on("ready",function(){
             //Greataxe +18 melee (3d6+13/x3) or slam +18 melee (1d4+9) or rock +9 ranged (2d6+9)
             for (i = 0; i < attackText.length; i++){
                 var text = attackText[i];
-                name = text.match(/(.*)\s[+-]/)[0];
+                name = text.match(/(.*)\s[+-]/);
+                if (name){
+                    name = name[0];
+                } else {
+                    sendChat('GM',"could not find attack name.<br>This error can occur if 'and' or 'or' are used anywhere but in the separation of different attacks. If these words appear in the damage description or elsewhere, place an astrerick around it, change it, or alter it in some way. Otherwise, see the comments section for insight on the proper structure of attacks for this code.");
+                    return;
+                }
                 name = name.replace(/\s[+-]/,'');
                 attackMod = text.match(/(.*)\s[+-][\d]+/)[0];
                 attackMod = attackMod.replace(/(.*)\s[+-]/,'');
@@ -1390,34 +1396,38 @@ on("ready",function(){
                 errorMsg = notFound(addError);                  
             }              
 
-
+            var meleeAtt = "";
+            var rangedAtt = "";
             match = other.match(/Melee\s*(.+)/ig);
             regex = "";
             if(match){
-                for (i=0; i < match.length; i++){
-                    if (i>0){
-                        regex = regex + " or " + match[i];
-                    } else {
-                        regex = regex + match[i];    
-                    }
-                }
+                match = match[0];
+                match = match.replace('Melee ','');
+                meleeAtt = match;
+                regex = match.replace('and','or');
             } else {
                 addError = 'Melee Attack not found';
                 errorMsg = notFound(addError);                  
             }                 
             match = other.match(/Ranged\s*(.+)/ig);
             if(match){
-                for (i=0; i < match.length; i++){
-                    regex = regex + " or " + match[i]; //No creature I know of has a Ranged but not a Melee attack.
-                }
+                match = match[0];
+                match = match.replace('Ranged ','');
+                rangedAtt = match;
+                regex = regex + " or " + match.replace('and','or');
             } else {
                 addError = 'Ranged Attack not found';
                 errorMsg = notFound(addError);                  
-            }                
+            }
+
             attributeName = 'npcattack';
     		foundAttribute = findAttribute(attributeName);
-            foundAttribute.set("current", regex);
-            //Full Attack should be the same as Single Attack because Full Attack is all that is listed
+            foundAttribute.set("current", regex.replace('and','or'));
+            if (meleeAtt && rangedAtt){
+                regex = meleeAtt + " or " + rangedAtt;
+            } else {
+                regex = meleeAtt + rangedAtt;
+            }
             attributeName = 'npcfullattack';
     		foundAttribute = findAttribute(attributeName);
             foundAttribute.set("current", regex);
@@ -1438,11 +1448,11 @@ on("ready",function(){
             
             match = other.match(/Hook\s*(.+)/ig);
             if(match){
-                var regex = regex + "\n" + match[0];
+                var regex = match[0];
                 attributeName = 'npcdescr';
     		    foundAttribute = findAttribute(attributeName);
                 var descr = getAttrByName(importMonster.id, "npcdescr");
-                regex = descr + "\nHook:" + regex;
+                regex = descr + "\n" + regex;
                 foundAttribute.set("current",regex);
                 
             }
@@ -1459,7 +1469,7 @@ on("ready",function(){
                 
             }            
 
-            match = other.match(/Senses\s*(.+)/ig);
+            match = other.match(/Senses\s*(.+)/g);
             if(match){
                 var regex = match[0];
                 attributeName = 'npcspecialqualities';
@@ -1535,7 +1545,7 @@ on("ready",function(){
                 regex = regex.replace(/Space\s*/,'');
                 attributeName = 'npcspace';
     		    foundAttribute = findAttribute(attributeName);  
-                foundAttribute.set("current",space);                
+                foundAttribute.set("current",regex);                
             }
             match = other.match(/Reach\s*[\d]+ ft./ig);
             if (match){
@@ -1543,7 +1553,7 @@ on("ready",function(){
                 regex = regex.replace(/Reach\s*/,'');
                 attributeName = 'npcreach';
     		    foundAttribute = findAttribute(attributeName);  
-                foundAttribute.set("current",reach);                
+                foundAttribute.set("current",regex);                
             }
             
             
