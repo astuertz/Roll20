@@ -1324,10 +1324,10 @@ on("ready",function(){
                 errorMsg = notFound(addError);                  
             }
             
-            match = other.match(/Speed:\s*(.*)/ig);
+            match = other.match(/Speed\s*(.*)/ig);
             if(match){
                 var regex = match[0];
-                regex = regex.replace(/Speed:\s*/,'');
+                regex = regex.replace(/Speed\s*/,'');
                 attributeName = 'npcspeed';
     			foundAttribute = findAttribute(attributeName);
                 foundAttribute.set("current", regex);                
@@ -1337,10 +1337,10 @@ on("ready",function(){
             }
             
             
-            match = other.match(/Skills:\s*(.+)/ig);
+            match = other.match(/Skills\s*(.+)/ig);
             if(match){
                 var regex = match[0];
-                regex = regex.replace(/Skills:\s*/,'');
+                regex = regex.replace(/Skills\s*/,'');
                 attributeName = 'npcskills';
     			foundAttribute = findAttribute(attributeName);
                 foundAttribute.set("current", regex);                
@@ -1349,10 +1349,10 @@ on("ready",function(){
                 errorMsg = notFound(addError);                  
             }
             
-            match = other.match(/Feats:\s*(.+)/ig);
+            match = other.match(/Feats\s*(.+)/ig);
             if(match){
                 var regex = match[0];
-                regex = regex.replace(/Feats:\s*/,'');
+                regex = regex.replace(/Feats\s*/,'');
                 attributeName = 'npcfeats';
     			foundAttribute = findAttribute(attributeName);
                 foundAttribute.set("current", regex);                
@@ -1361,7 +1361,7 @@ on("ready",function(){
                 errorMsg = notFound(addError);                  
             }
             
-            match = other.match(/Challenge Rating:\s*([\d]+)/ig);
+            match = other.match(/CR\s*([\d]+)/g);
             if(match){
                 var regex = match[0];
                 regex = regex.replace(/Challenge Rating:\s*/,'');
@@ -1479,7 +1479,7 @@ on("ready",function(){
                 
             }            
 
-            match = other.match(/Senses\s*(.+)/ig);
+            match = other.match(/Senses\s*(.+)/g);
             if(match){
                 var regex = match[0];
                 attributeName = 'npcspecialqualities';
