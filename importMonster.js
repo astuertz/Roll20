@@ -39,6 +39,10 @@
 //The damage is in the parantheses; however, the script will also accept
 //#d# or plain text for damage.
 
+//Finally, I am not sure why the code appears oddly on github. It is only an asthetic
+//preference, but it is annoying that things don't quite line up in github like they
+//do in Roll20.
+
 on("ready",function(){
     on("chat:message",function(msg){
         if((msg.type=="api" && msg.content.indexOf("!importMonster")==0) || (msg.type=="api" && msg.content.indexOf("!createabilityMacros")==0) || (msg.type=="api" && msg.content.indexOf("!createskillMacros")==0) || (msg.type=="api" && msg.content.indexOf("!createattackMacros")==0) || (msg.type=="api" && msg.content.indexOf("!deleteMacros")==0 || (msg.type=="api" && msg.content.indexOf("!shortblockMonster")==0)))
