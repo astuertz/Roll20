@@ -102,6 +102,7 @@ on("ready",function(){
                 return;
             }
             var other = other.replace('–','-');
+            var other = other.replace('×','x');
             
             
             function createnewMacro(name,action) {
@@ -646,7 +647,7 @@ on("ready",function(){
             
             //creates macros for each ability with Ex, Sp, or Su in parantheses
             //each ability description must be on a new line
-            match = other.match(/([a-zA-Z0-9 ]+)\((Ex|Sp|Su)\)\n(.*)/ig); //checks for a line with text followed by (ex,sp,su) then text
+            match = other.match(/([a-zA-Z0-9 ]+)\((Ex|Sp|Su)\)\s*\n(.*)/ig); //checks for a line with text followed by (ex,sp,su) then text
             if (match){
                 for (i=0; i < match.length; i++) {
                     var regex = match[i];
@@ -1163,11 +1164,15 @@ on("ready",function(){
             }            
             
             
-            match = other.match(/(?:Size\/Type:)?\s*(fine|diminutive|tiny|small|medium|large|huge|gargantuan|colossal) ([a-zA-Z0-9 \(\)]+)/ig);
+            match = other.match(/(LN|LE|LG|N|NE|NG|CN|CE|CG)\s*(fine|diminutive|tiny|small|medium|large|huge|gargantuan|colossal) ([a-zA-Z0-9 \(\)]+)/ig);
             //If Size/Type is found, update attribute, else error message.
             if(match){
                 var regex = match[0];
-                regex = regex.replace(/Size\/Type:\s*/, '');
+                alignment = regex.split(' ')[0];
+                attributeName = 'npcalignment';
+    			foundAttribute = findAttribute(attributeName);
+                foundAttribute.set("current", alignment);                
+                regex = regex.replace(/(LN|LE|LG|N|NE|NG|CN|CE|CG)\s*/, '');
                 attributeName = 'npctype';
     			foundAttribute = findAttribute(attributeName);
                 foundAttribute.set("current", regex);
@@ -1211,6 +1216,15 @@ on("ready",function(){
                 addError = 'Type/Size not found';
                 errorMsg = notFound(addError);                 
             }
+            
+            //Reset npcSQ and npcdescr
+            attributeName = 'npcspecialqualities';
+    		foundAttribute = findAttribute(attributeName);
+            foundAttribute.set("current", '');
+            
+            attributeName = 'npsdescr';
+    		foundAttribute = findAttribute(attributeName);
+            foundAttribute.set("current", '');              
             
 
 
@@ -1365,7 +1379,7 @@ on("ready",function(){
             match = other.match(/CR\s*([\d]+)/g);
             if(match){
                 var regex = match[0];
-                regex = regex.replace(/Challenge Rating:\s*/,'');
+                regex = regex.replace(/CR\s*/,'');
                 attributeName = 'npccr';
     			foundAttribute = findAttribute(attributeName);
                 foundAttribute.set("current", regex);                
@@ -1373,6 +1387,16 @@ on("ready",function(){
                 addError = 'CR not found';
                 errorMsg = notFound(addError);                  
             }
+            
+            
+            match = other.match(/SR\s*([\d]+)/g);
+            if(match){
+                var regex = match[0];
+                attributeName = 'npcdescr';
+    			foundAttribute = findAttribute(attributeName);
+                regex = descr + "\n" + regex;
+                foundAttribute.set("current",regex);                
+            }            
             
             
             match = other.match(/Special Actions\s*(.+)/ig);
@@ -1401,8 +1425,7 @@ on("ready",function(){
     		foundAttribute = findAttribute(attributeName);
             foundAttribute.set("current", regex);               
 
-            
-            
+
             match = other.match(/SQ\s*(.+)/g);
             if(match){
                 var regex = match[0];
@@ -1416,19 +1439,21 @@ on("ready",function(){
             }              
 
 
-            match = other.match(/Melee\s*(.+)/ig);
+            match = other.match(/Melee\s*(.*)/ig);
             regex = "";
             melee = "";
             ranged = "";
             if(match){
-                Melee = match[0].replace('Melee','');
+                melee = match[0];
+                melee = melee.replace(/Melee /,'');
             } else {
                 addError = 'Melee Attack not found';
                 errorMsg = notFound(addError);                  
             }                 
-            match = other.match(/Ranged\s*(.+)/ig);
+            match = other.match(/Ranged\s*(.*)/ig);
             if(match){
-                Ranged = match[0].replace('Ranged','');
+                ranged = match[0];
+                ranged = ranged.replace(/Ranged /,'');
             } else {
                 addError = 'Ranged Attack not found';
                 errorMsg = notFound(addError);                  
@@ -1449,7 +1474,8 @@ on("ready",function(){
                     errorMsg = notFound(addError);    
     		    }
     		}
-            foundAttribute.set("current", regex);
+    		regex = regex.replace(/\s\s/,' ');
+            foundAttribute.set("current", regex.replace('and','or'));
             //Full Attack should be the same as Single Attack because Full Attack is all that is listed
             attributeName = 'npcfullattack';
     		foundAttribute = findAttribute(attributeName);
@@ -1461,7 +1487,7 @@ on("ready",function(){
                 var regex = match[0];
                 attributeName = 'npcdescr';
     		    foundAttribute = findAttribute(attributeName);
-    		    regex = "Combat Gear: " + regex;
+    		    regex = regex;
                 foundAttribute.set("current",regex);
             } else {
                 addError = 'Combat Gear not found';
@@ -1475,7 +1501,7 @@ on("ready",function(){
                 attributeName = 'npcdescr';
     		    foundAttribute = findAttribute(attributeName);
                 var descr = getAttrByName(importMonster.id, "npcdescr");
-                regex = descr + "\nHook:" + regex;
+                regex = descr + "\n" + regex;
                 foundAttribute.set("current",regex);
                 
             }
@@ -1487,7 +1513,7 @@ on("ready",function(){
                 attributeName = 'npcdescr';
     		    foundAttribute = findAttribute(attributeName);
                 var descr = getAttrByName(importMonster.id, "npcdescr");
-                regex = descr + "\nPosessions: " + regex;
+                regex = descr + "\n" + regex;
                 foundAttribute.set("current",regex);
                 
             }            
@@ -1560,8 +1586,33 @@ on("ready",function(){
                 foundAttribute.set("current",regex);            
             
             
-            }            
+            }
             
+            match = other.match(/Space\s*[\d]+ ft./ig);
+            if (match){
+                var regex = match[0];
+                regex = regex.split(' ');
+                let space = regex[1];
+                attributeName = 'npcspace';
+    			foundAttribute = findAttribute(attributeName);
+                foundAttribute.set("current",space);
+            } else {
+                addError = 'Space not found';
+                errorMsg = notFound(addError);                  
+            }
+            
+            match = other.match(/Reach\s*[\d]+ ft./ig);
+            if (match){
+                var regex = match[0];
+                regex = regex.split(' ');
+                let reach = regex[1];
+                attributeName = 'npcreach';
+    			foundAttribute = findAttribute(attributeName);
+                foundAttribute.set("current",reach);
+            } else {
+                addError = 'Reach not found';
+                errorMsg = notFound(addError);                  
+            }                
 
             
             
