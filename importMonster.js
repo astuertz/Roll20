@@ -429,6 +429,7 @@ on("ready",function(){
             if(match){
                 var regex = match[0];
                 regex = regex.replace(/Skills:\s*/,'');
+                regex = regex.replace('-','+-');
                 attributeName = 'npcskills';
     			foundAttribute = findAttribute(attributeName);
                 foundAttribute.set("current", regex);                
@@ -680,7 +681,7 @@ on("ready",function(){
         
 
             //create new Array containing the name of each Skill
-            const skillName = new Array("Appraise","Balance","Bluff","Climb","Concentrate","Diplomacy","Disguise","Escape Artist","Forgery","Gather Information","Heal","Jump","Hide","Intimidate","Listen","Move Silently","Ride","Search","Sense Motive","Spot","Survival","Swim","Use Rope","Knwl(general)","Craft(general)","Perform(general)");
+            const skillName = new Array("Appraise","Balance","Bluff","Climb","Concentration","Diplomacy","Disguise","Escape Artist","Forgery","Gather Information","Heal","Jump","Hide","Intimidate","Listen","Move Silently","Ride","Search","Sense Motive","Spot","Survival","Swim","Use Rope","Knwl(general)","Craft(general)","Perform(general)");
             const abilityMod = new Array("npcint-mod","npcdex-mod","npccha-mod","npcstr-mod","npccon-mod","npccha-mod","npccha-mod","npcdex-mod","npcint-mod","npccha-mod","npcwis-mod","npcstr-mod","npcdex-mod","npccha-mod","npcwis-mod","npcdex-mod","npcdex-mod","npcint-mod","npcwis-mod","npcwis-mod","npcwis-mod","npcstr-mod","npcdex-mod","npcint-mod","npcint-mod","npccha-mod");
             const skillComplex = new Array("Craft","Knowledge","Perform","Profession");        
             //var other = getAttrByName(importMonster.id, "other");            
@@ -695,13 +696,13 @@ on("ready",function(){
                 
                 //create Regex expression for .match using each skill name
                 skillnameText = skillName[i];
-                regex = "" + skillnameText + "\\s\\+[\\d]+";
+                regex = "" + skillnameText + "\\s\\+-?[\\d]+";
                 regexSkill = new RegExp(regex,'ig');
                 skillMatch = skillsText.match(regexSkill);
                 if (skillMatch){
                     skillMatch = skillMatch[0];
                     //These lines are to capture additional text after the listed skill in "(text)"
-                    regex = "" + skillnameText + "\\s\\+[\\d]+\\s\\(\\+[\\d]+[a-zA-Z0-9 ]+\\)";
+                    regex = "" + skillnameText + "\\s\\+-?[\\d]+\\s\\(\\+-?[\\d]+[a-zA-Z0-9 ]+\\)";
                     regexSkill = new RegExp(regex,'ig');
                     skillText = skillsText.match(regexSkill);
                     if (skillText){
@@ -749,13 +750,13 @@ on("ready",function(){
                 
                 //create Regex expression for .match using each skill name
                 skillnameText = skillNameTrained[i];
-                regex = "" + skillnameText + "\\s\\+[\\d]*";
+                regex = "" + skillnameText + "\\s\\+-?[\\d]*";
                 regexSkill = new RegExp(regex,'ig');
                 skillMatch = skillsText.match(regexSkill);
                 if (skillMatch){
                     skillMatch = skillMatch[0];
                     //These lines are to capture additional text after the listed skill in "(text)"
-                    regex = "" + skillnameText + "\\s\\+[\\d]+\\s\\(\\+[\\d]+[a-zA-Z0-9 ]+\\)";
+                    regex = "" + skillnameText + "\\s\\+-?[\\d]+\\s\\(\\+-?[\\d]+[a-zA-Z0-9 ]+\\)";
                     regexSkill = new RegExp(regex,'ig');
                     skillText = skillsText.match(regexSkill);
                     if (skillText){
@@ -782,7 +783,7 @@ on("ready",function(){
                 }
             }    
                 //Knowledge
-                skillMatch = skillsText.match(/Knowledge \(([a-zA-Z0-9 ]+)\) \+[\d]+/ig);
+                skillMatch = skillsText.match(/Knowledge \(([a-zA-Z0-9 ]+)\) \+-?[\d]+/ig);
                 if (skillMatch){
                     for (i=0; i < skillMatch.length; i++){
                         let skillMatchComp = skillMatch[i];
@@ -800,7 +801,7 @@ on("ready",function(){
                     }
                 }
                 
-                skillMatch = skillsText.match(/Craft \(([a-zA-Z0-9 ]+)\) \+[\d]+/ig);
+                skillMatch = skillsText.match(/Craft \(([a-zA-Z0-9 ]+)\) \+-?[\d]+/ig);
                 if (skillMatch){
                     for (i=0; i < skillMatch.length; i++){
                         let skillMatchComp = skillMatch[i];
@@ -818,7 +819,7 @@ on("ready",function(){
                 }
                 
                 
-                skillMatch = skillsText.match(/Profession \(([a-zA-Z0-9 ]+)\) \+[\d]+/ig);
+                skillMatch = skillsText.match(/Profession \(([a-zA-Z0-9 ]+)\) \+-?[\d]+/ig);
                 if (skillMatch){
                     for (i=0; i < skillMatch.length; i++){
                         let skillMatchComp = skillMatch[i];
@@ -836,7 +837,7 @@ on("ready",function(){
                 }
                 
                 
-                skillMatch = skillsText.match(/Perform \(([a-zA-Z0-9 ]+)\) \+[\d]+/ig);
+                skillMatch = skillsText.match(/Perform \(([a-zA-Z0-9 ]+)\) \+-?[\d]+/ig);
                 if (skillMatch){
                     for (i=0; i < skillMatch.length; i++){
                         let skillMatchComp = skillMatch[i];
@@ -1222,7 +1223,7 @@ on("ready",function(){
     		foundAttribute = findAttribute(attributeName);
             foundAttribute.set("current", '');
             
-            attributeName = 'npsdescr';
+            attributeName = 'npcdescr';
     		foundAttribute = findAttribute(attributeName);
             foundAttribute.set("current", '');              
             
@@ -1356,6 +1357,7 @@ on("ready",function(){
             if(match){
                 var regex = match[0];
                 regex = regex.replace(/Skills\s*/,'');
+                regex = regex.replace('-','+-');
                 attributeName = 'npcskills';
     			foundAttribute = findAttribute(attributeName);
                 foundAttribute.set("current", regex);                
