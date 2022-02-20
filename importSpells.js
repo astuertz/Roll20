@@ -1,22 +1,24 @@
 on("ready",function(){    
     const cmdRegex = /^!importSpells (.*)$/i;
+
+    on('chat:message',function(msg){    
+        if('api' === msg.type && msg.content == '!importSpells') {    
     
-    on('chat:message',function(msg){
-        if('api' === msg.type && msg.content == '!importSpells') {
-            sendChat('GM','Command !importSpells [character name]<br><br>Create character sheet macro with the same name as the spell macro as you want copied over.<br><br>Entering the following into the action field of macro will automatically replace the queries with information entered:<br>CL #<br>DC #<br>Ranged #<br>Melee #<br><br>Make sure to use spaces.')
-        }
-    });
+            //let match=msg.content.match(cmdRegex);
+            //match = match[0];
 
-
-    on('chat:message',function(msg){
-        if('api' === msg.type && cmdRegex.test(msg.content) && playerIsGM(msg.playerid) ){
-            
-            let match=msg.content.match(cmdRegex);
-            match = match[0];
-
-            match = match.split(' ')[1];
+            //match = match.split(' ')[1];
             
             
+            var selected = msg.selected;
+            if (selected===undefined)
+            {
+                sendChat("API","Please select a character.");
+                return;
+            }
+            var tok = getObj("graphic",selected[0]._id);
+            var importMonster = getObj("character",tok.get("represents"));            
+            /*
             var importMonster = findObjs({type:"character",name:match});
             if (importMonster[0]){
                 importMonster = importMonster[0];
@@ -24,7 +26,7 @@ on("ready",function(){
                 sendChat('GM','Could not find character.<br><br>Please use the following format:<br>!importSpells [character name].')
                 return;                
             }
-            
+            */
             
             var abilityList = findObjs({type:"ability",characterid:importMonster.id});
             var macroList = findObjs({type:"macro"});
@@ -56,7 +58,7 @@ on("ready",function(){
 							newAction = newAction.replace(/\?{Spell DC\?[A-Za-z0-9,|\/? ]+{[A-Za-z0-9,|\/? ]+}}/igm,DC);
 						}
 						rangedQ = newAction.match(/\?{Ranged Attack Mod\?\|0}/ig);
-						rangedMod = abilityAction.match(/ranged [\d]+/ig);
+						rangedMod = abilityAction.match(/ranged (?:-)?[\d]+/ig);
 						if (rangedQ && rangedMod){
 						    //rangedQ = rangedQ[0];
 						    rangedMod = rangedMod[0];
@@ -64,8 +66,8 @@ on("ready",function(){
 						    newAction = newAction.replace(/\?{Ranged Attack Mod\?\|0}/igm,rangedMod);
 						}
 						meleeQ = newAction.match(/\?{Melee Attack Mod\?\|0}/ig);
-						meleeMod = abilityAction.match(/melee [\d]+/ig);
-						if (meleeQ && MeleeMod){
+						meleeMod = abilityAction.match(/melee (?:-)?[\d]+/ig);
+						if (meleeQ && meleeMod){
 						    //meleeQ = meleeQ[0];
 						    meleeMod = meleeMod[0];
 						    meleeMod = meleeMod.split(' ')[1];
@@ -74,6 +76,9 @@ on("ready",function(){
 						
 						
                         ability.set("action",newAction + ' {{name=@{character_name} }}');
+                        newName = ability.get("name");
+                        newName = newName.replace('zSPELL','SPELL');
+                        ability.set("name",newName);
                     }
                     
                     
